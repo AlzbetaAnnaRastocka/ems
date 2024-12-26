@@ -1,18 +1,17 @@
 import heapq
 import os
 import sys
-import time
-
 
 def read_numbers_and_divide(file_path, memory_limit):
     """ Divide input file with N numbers into N/M runs. """
     run = []
     current_bytes = 0
+    NUMBER_SIZE = 40 # 40 bytes per number (integers in the file)
 
     with open(file_path, 'r') as file:
         for line in file:
 
-            if current_bytes + 40 > memory_limit: # if adding another line would extend memory M we dont add it and yield a run that is certainly under limit M
+            if current_bytes + NUMBER_SIZE > memory_limit: # if adding another line would extend memory M we dont add it and yield a run that is certainly under limit M
                 if run:
                     yield run
                     run = []
@@ -20,7 +19,7 @@ def read_numbers_and_divide(file_path, memory_limit):
 
             number = int(line.strip())
             run.append(number)
-            current_bytes += 40 # dynamic calculation of a growing run, to ensure it does not extend our working memory M
+            current_bytes += NUMBER_SIZE # dynamic calculation of a growing run, to ensure it does not extend our working memory M
 
         if run:
             yield run
@@ -124,7 +123,7 @@ def merge_runs(runs, output_file_path, memory_limit, block_size):
     - memory_limit: Maximum available memory (in bytes).
     - block_size: Size of each block to read from disk (in bytes).
     """
-    K = (memory_limit // block_size)  # We can merge M/B files at once
+    K =  (memory_limit // block_size) # We can merge M/B files at once
 
     iteration = 1 # variable to name temporary files of merged runs
 
@@ -164,14 +163,9 @@ def main():
     # Input file
     input_file = sys.argv[1]
 
-    start = time.time()
     # External merge sort algorithm
     external_merge_sort(input_file, MEMORY_LIMIT_BYTES, BLOCK_SIZE_BYTES)
 
-    end = time.time()
-    execution = end - start
-    print(f"Sorting took {execution} s")
-  
 if __name__ == "__main__":
     main()
 
